@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script type='text/javascript'>
+// modified from http://www.dyn-web.com/tutorials/iframes/postmessage/height/
+function setIframeHeightCO(id, ht) {
+    var ifrm = document.getElementById(id);
+    ifrm.style.visibility = 'hidden';
+    // some IE versions need a bit added or scrollbar appears
+    ifrm.style.height = ht + 4 + "px";
+    ifrm.style.visibility = 'visible';
+}
+
+
+// iframed document sends its height using postMessage
+function handleDocHeightMsg(e) {
+    // check origin
+    if ( e.origin === 'https://s3.amazonaws.com' ) {
+        // parse data
+        var data = JSON.parse( e.data );
+        // check data object
+        if ( data['docHeight'] ) {
+            setIframeHeightCO( 'ifrm', data['docHeight'] );
+        } else if ( data['href'] ) {
+            setIframe('ifrm', data['href'] );
+        }
+    }
+}
+
+// assign message handler
+if ( window.addEventListener ) {
+    window.addEventListener('message', handleDocHeightMsg, false);
+    window.addEventListener('resize', handleDocHeightMsg, false);
+} else if ( window.attachEvent ) { // ie8
+    window.attachEvent('onmessage', handleDocHeightMsg);
+    window.attachEvent('onresize', handleDocHeightMsg);
+}
+</script>
+</head>
+<body>
+  <div id="content">
+<iframe id="ifrm" style="width:80%" src="https://s3.amazonaws.com/tnewmaniframe/iframe.html"></iframe>
+</div>
+</body>
+</html>
